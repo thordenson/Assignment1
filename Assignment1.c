@@ -30,7 +30,44 @@ double *local_ysqr;
 
 double coeff_serial, coeff_parallel; //coefficient variable
 int comm_sz, my_rank; // MPI variables
-int local_array_size; // number of elements each process receives
+int local_array_size; // this is the number of elements each process MPI_receives
 
 
+//arrays to hold sums
+double sums_array_serial[5]; 
+double sums_array_parallel[5];
+double total_sums_array[5];
+
+double start_serial, end_serial, start_parallel, end_parallel; // timer variables
+
+int i;
+
+
+//initiate MPI
+MPI_Init(NULL, NULL); 
+
+MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);//number of processors
+
+MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);//rank of a process
+
+/**********************************************************************/
+/* allocate memory for the x and y arrays and populate with values*/
+/* this is performed in serial*/
+
+if (my_rank == 0){
+
+    printf("Number of processes: %d\n", comm_sz);
+    printf("Array size: %d\n", array_size);
+
+    //create buffer of memory for array x and array y
+    global_x = (double *)malloc(array_size * sizeof(double));
+    global_y = (double *)malloc(array_size * sizeof(double));
+        
+        /* assign values such that: xi = sin(i) and yi = sin(i+2)*/
+        for (i = 0; i < array_size; i++) {
+            global_x[i] = sin(i);
+            global_y[i] = sin (i+2);
+        }
+    }
+    
 }
