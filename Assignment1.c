@@ -46,9 +46,9 @@ int i;
 //initiate MPI
 MPI_Init(NULL, NULL); 
 
-MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);//number of processors
+MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);//this is the number of processors
 
-MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);//rank of a process
+MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);//this is the rank of a process
 
 /**********************************************************************/
 /* allocate memory for the x and y arrays and populate with values*/
@@ -69,5 +69,38 @@ if (my_rank == 0){
             global_y[i] = sin (i+2);
         }
     }
+
+/********************* SERIAL CODE ************************************/
+//start timer
+serial_start = MPI_Wtime();
+
+if (my_rank == 0){
+    //create buffers for xy, xsqr, ysqr arrays
+    xy = (double *)malloc( array_size * sizeof(double));
+    xsqr = (double *)malloc( array_size * sizeof(double));
+    ysqr = (double *)malloc( array_size * sizeof(double));
+
+    /* calculate: xsum, ysum, xysum, xsqr_sum, ysqr_sum and put the values into an array of size 5*/
+    calculate_sums(global_x, global_y, xy, xsqr, ysqr, sums_array_serial, array_size);
+
+    /* calculate pearson*/
+    coeff_serial = calculate_pearson(sums_array_serial);
+
+
+    //* print the result */
+    printf("Serial - Pearson Correlation Coefficient : %f\n", coeff_serial);
     
+    //end timer
+    serial_end = MPI_Wtime();
+  
+
+    //print run time
+    printf("Serial time: %1.2f\n", serial_end-serial_start);
+
+    free(xy);
+    free(xsqr);
+    free(ysqr);
+
+    }
+
 }
